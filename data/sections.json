@@ -1,0 +1,24 @@
+[
+  {
+    "id": "hero",
+    "type": "hero",
+    "companyId": "1",
+    "title": "Join Our Team",
+    "subtitle": "We're building the future of work",
+    "content": ""
+  },
+  {
+    "id": "about",
+    "type": "about",
+    "companyId": "1",
+    "title": "About ACME",
+    "content": "<p>ACME Corp is a leading technology company...</p>"
+  },
+  {
+    "id": "perks",
+    "type": "perks",
+    "companyId": "1",
+    "title": "Why Join Us",
+    "content": "<p>Competitive salary, flexible work, and more.</p>"
+  }
+]

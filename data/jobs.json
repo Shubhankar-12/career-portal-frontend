@@ -1,0 +1,32 @@
+[
+  {
+    "id": "1",
+    "companyId": "1",
+    "title": "Senior React Developer",
+    "location": "San Francisco, CA",
+    "workPolicy": "Remote",
+    "department": "Engineering",
+    "employmentType": "Full-time",
+    "experienceLevel": "Senior",
+    "jobType": "Permanent",
+    "salaryRange": "$150k - $200k",
+    "description": "<p>We're looking for an experienced React developer to join our team.</p>",
+    "status": "active",
+    "createdAt": "2025-01-01"
+  },
+  {
+    "id": "2",
+    "companyId": "1",
+    "title": "Product Designer",
+    "location": "New York, NY",
+    "workPolicy": "Hybrid",
+    "department": "Design",
+    "employmentType": "Full-time",
+    "experienceLevel": "Mid-level",
+    "jobType": "Permanent",
+    "salaryRange": "$100k - $140k",
+    "description": "<p>Join our design team to create beautiful user experiences.</p>",
+    "status": "active",
+    "createdAt": "2025-01-02"
+  }
+]

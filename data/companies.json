@@ -1,0 +1,38 @@
+[
+  {
+    "id": "1",
+    "name": "ACME Corp",
+    "slug": "acme-corp",
+    "recruiterId": "1",
+    "logo": "https://via.placeholder.com/100",
+    "banner": "https://via.placeholder.com/1200x300",
+    "video": null,
+    "theme": {
+      "primaryColor": "#10b981",
+      "secondaryColor": "#404040",
+      "textColor": "#ffffff",
+      "backgroundColor": "#0a0a0a"
+    },
+    "sections": ["hero", "about", "perks"],
+    "published": false,
+    "createdAt": "2025-01-01"
+  },
+  {
+    "id": "2",
+    "name": "TechCorp",
+    "slug": "techcorp",
+    "recruiterId": "2",
+    "logo": "https://via.placeholder.com/100",
+    "banner": "https://via.placeholder.com/1200x300",
+    "video": null,
+    "theme": {
+      "primaryColor": "#3b82f6",
+      "secondaryColor": "#404040",
+      "textColor": "#ffffff",
+      "backgroundColor": "#0a0a0a"
+    },
+    "sections": ["hero", "about"],
+    "published": true,
+    "createdAt": "2025-01-05"
+  }
+]

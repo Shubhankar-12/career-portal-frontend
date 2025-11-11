@@ -1,0 +1,22 @@
+[
+  {
+    "id": "1",
+    "email": "recruiter@acme.com",
+    "password": "password123",
+    "name": "Sarah Chen",
+    "companyId": "1"
+  },
+  {
+    "id": "2",
+    "email": "recruiter2@techcorp.com",
+    "password": "password123",
+    "name": "John Smith",
+    "companyId": "2"
+  },
+  {
+    "email": "shubhankar719@gmail.com",
+    "password": "abc",
+    "name": "Shubh Shubhankar",
+    "id": "3"
+  }
+]
