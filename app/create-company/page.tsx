@@ -12,6 +12,7 @@ export default function CreateCompanyPage() {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
   const [companyName, setCompanyName] = useState("");
+  const [website, setWebsite] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -19,6 +20,30 @@ export default function CreateCompanyPage() {
   //   router.push("/login")
   //   return null
   // }
+
+  const handleValidate = async () => {
+    let isValid = true;
+    if (!companyName || !companyName.trim()) {
+      setError("Company name is required");
+      isValid = false;
+    }
+    if (!website) {
+      setError("Website is required");
+      isValid = false;
+    }
+
+    // validate company website regex
+    if (
+      website &&
+      !website.match(
+        /^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/
+      )
+    ) {
+      setError("Invalid website URL");
+      isValid = false;
+    }
+    return isValid;
+  };
 
   useEffect(() => {
     console.log("user", user);
@@ -39,8 +64,9 @@ export default function CreateCompanyPage() {
       const slug = slugify(companyName);
       const company = await companyAPI.create({
         name: companyName,
+        website: website,
       });
-      router.push(`/${slug}/edit`);
+      if (company) router.push(`/${slug}/edit`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create company");
     } finally {
@@ -79,6 +105,24 @@ export default function CreateCompanyPage() {
             />
             <p className="text-sm text-text-secondary mt-2">
               Slug: {slugify(companyName) || "company-name"}
+            </p>
+          </div>
+          {/* website */}
+          <div>
+            <label htmlFor="website" className="block text-sm font-medium mb-2">
+              Company Website
+            </label>
+            <input
+              id="website"
+              type="text"
+              className="input"
+              placeholder="Your Company Website"
+              required
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
+            />
+            <p className="text-sm text-text-secondary mt-2">
+              Example: https://example.com, https://www.example.com
             </p>
           </div>
 

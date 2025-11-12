@@ -30,6 +30,7 @@ export interface User {
 
 export interface Company {
   company_id: string;
+  website: string;
   name: string;
   slug: string;
   user_id: string;
@@ -59,22 +60,6 @@ export interface Company {
   sections?: any[];
   published?: string;
   createdAt?: string;
-}
-
-export interface Job {
-  job_id: string;
-  company_id: string;
-  title: string;
-  location: string;
-  work_policy: string;
-  department: string;
-  employment_type: string;
-  experience_level: string;
-  job_type: string;
-  salary_range: string;
-  description: string;
-  status: "active" | "archived";
-  createdAt: string;
 }
 
 // ====== Helper ======
@@ -135,9 +120,14 @@ export const companyAPI = {
     });
     return handleResponse(res);
   },
-
-  getByUserId: async (userId: string): Promise<Company> => {
-    const res = await fetch(`${API_URL}/company/user/${userId}`);
+  getById: async (id: string): Promise<Company> => {
+    const res = await fetch(`${API_URL}/company/details?company_id=${id}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getCookie("token")}`,
+      },
+    });
     return handleResponse(res);
   },
 
@@ -175,73 +165,120 @@ export const companyAPI = {
 };
 
 // ====== Job API ======
+// ===== Interfaces =====
+export interface Job {
+  job_id: string;
+  company_id: string;
+  title: string;
+  description: string;
+  location?: string;
+  work_policy?: "Remote" | "Hybrid" | "Onsite";
+  department?: string;
+  employment_type?: string;
+  experience_level?: string;
+  job_type?: string;
+  salary_type?: "CONFIDENTIAL" | "RANGE" | "FIXED";
+  min_salary?: number;
+  max_salary?: number;
+  salary_fixed?: number;
+  currency?: string;
+  posted_at?: string;
+  status?: "OPEN" | "CLOSED";
+}
+export interface JobFilters {
+  job_id?: string;
+  company_id: string;
+  search?: string;
+  work_policy?: string;
+  department?: string;
+  employment_type?: string;
+  experience_level?: string;
+  job_type?: string;
+  salary_type?: string;
+  location?: string;
+  status?: string;
+  skip?: number;
+  limit?: number;
+  sort_by?: string;
+}
+export interface JobListResponse {
+  result: Job[];
+  metadata: {
+    totalCount: number;
+  };
+}
+
+// ===== Job API =====
 export const jobAPI = {
-  getByCompanyId: async (companyId: string): Promise<Job[]> => {
-    const res = await fetch(`${API_URL}/jobs/company/${companyId}`);
-    return handleResponse(res);
-  },
-
-  getById: async (jobId: string): Promise<Job> => {
-    const res = await fetch(`${API_URL}/jobs/${jobId}`);
-    return handleResponse(res);
-  },
-
-  create: async (
-    companyId: string,
-    jobData: Omit<Job, "job_id" | "company_id" | "createdAt">,
-    token: string
-  ): Promise<Job> => {
-    const res = await fetch(`${API_URL}/jobs`, {
+  // 🟢 Create a new job
+  create: async (data: Omit<Job, "job_id">): Promise<Job> => {
+    const res = await fetch(`${API_URL}/jobs/create`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ company_id: companyId, ...jobData }),
-    });
-    return handleResponse(res);
-  },
-
-  update: async (
-    jobId: string,
-    data: Partial<Job>,
-    token: string
-  ): Promise<Job> => {
-    const res = await fetch(`${API_URL}/jobs/${jobId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${getCookie("token")}`,
       },
       body: JSON.stringify(data),
     });
     return handleResponse(res);
   },
 
-  delete: async (jobId: string, token: string): Promise<void> => {
-    const res = await fetch(`${API_URL}/jobs/${jobId}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (!res.ok) throw new Error("Failed to delete job");
-  },
-
-  uploadDoc: async (data: any, folderPath?: any): Promise<any> => {
-    if (folderPath !== undefined) data.append("folder", folderPath);
-    // return userService.post("/media/upload-doc", data, {
-    //   headers: {
-    //     "Content-Type": "multipart/form-data",
-    //     Authorization: `Bearer ` + getCookie("token"),
-    //   },
-    // });
-    return fetch(`${API_URL}/files/upload-doc`, {
-      method: "POST",
+  // 🟠 Update a job
+  update: async (jobId: string, data: Partial<Job>): Promise<Job> => {
+    const res = await fetch(`${API_URL}/jobs/update`, {
+      method: "PATCH",
       headers: {
-        "Content-Type": "multipart/form-data",
+        "Content-Type": "application/json",
         Authorization: `Bearer ${getCookie("token")}`,
       },
-      body: data,
+      body: JSON.stringify({ ...data, job_id: jobId }),
     });
+    return handleResponse(res);
+  },
+
+  // 🟣 Get all jobs (with optional filters/pagination)
+  getAllJobs: async (filters: JobFilters): Promise<JobListResponse> => {
+    // ✅ Build query params dynamically
+    const queryParams = new URLSearchParams();
+
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== "") {
+        queryParams.append(key, String(value));
+      }
+    });
+
+    const res = await fetch(`${API_URL}/jobs/list?${queryParams.toString()}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${getCookie("token")}`,
+      },
+    });
+
+    return handleResponse(res);
+  },
+
+  // 🔵 Get job by ID
+  getById: async (jobId: string): Promise<Job> => {
+    const res = await fetch(`${API_URL}/jobs?job_id=${jobId}`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${getCookie("token")}`,
+      },
+    });
+    return handleResponse(res);
+  },
+
+  // 🔴 Delete a job
+  delete: async (jobId: string): Promise<{ success: boolean }> => {
+    const res = await fetch(`${API_URL}/jobs/delete`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getCookie("token")}`,
+      },
+      body: JSON.stringify({ job_id: jobId }),
+    });
+    return handleResponse(res);
   },
 };
 

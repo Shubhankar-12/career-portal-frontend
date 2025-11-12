@@ -14,7 +14,7 @@ import { fileUploader } from "@/lib/utils";
 function BuilderContent() {
   const router = useRouter();
   const params = useParams();
-  const slug = params["company-slug"] as string;
+  const slug = params["slug"] as string;
   const user = useAuthStore((state) => state.user);
   const [company, setCompany] = useState<Company | null>(null);
   const [sections, setSections] = useState<SectionData[]>([]);
@@ -236,6 +236,20 @@ function BuilderContent() {
                     className="input"
                   />
                 </div>
+                {/* Website */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Website
+                  </label>
+                  <input
+                    type="text"
+                    value={company.website}
+                    onChange={(e) =>
+                      setCompany({ ...company, website: e.target.value })
+                    }
+                    className="input"
+                  />
+                </div>
                 {/* Logo Upload */}
                 <div>
                   <label className="block text-sm font-medium mb-2">
@@ -298,6 +312,7 @@ function BuilderContent() {
             <h2 className="text-xl font-bold">Theme & Colors</h2>
             <div className="card">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Primary Color */}
                 <div>
                   <label className="block text-sm font-medium mb-2">
                     Primary Color
@@ -305,22 +320,24 @@ function BuilderContent() {
                   <div className="flex gap-3">
                     <input
                       type="color"
-                      value={company?.theme?.primary_color}
+                      value={company?.theme?.primary_color || "#2563EB"}
                       onChange={(e) =>
-                        handleThemeChange("primaryColor", e.target.value)
+                        handleThemeChange("primary_color", e.target.value)
                       }
                       className="w-16 h-10 rounded cursor-pointer"
                     />
                     <input
                       type="text"
-                      value={company?.theme?.primary_color}
+                      value={company?.theme?.primary_color || "#2563EB"}
                       onChange={(e) =>
-                        handleThemeChange("primaryColor", e.target.value)
+                        handleThemeChange("primary_color", e.target.value)
                       }
                       className="input flex-1"
                     />
                   </div>
                 </div>
+
+                {/* Secondary Color */}
                 <div>
                   <label className="block text-sm font-medium mb-2">
                     Secondary Color
@@ -328,22 +345,24 @@ function BuilderContent() {
                   <div className="flex gap-3">
                     <input
                       type="color"
-                      value={company?.theme?.secondary_color}
+                      value={company?.theme?.secondary_color || "#0F172A"}
                       onChange={(e) =>
-                        handleThemeChange("secondaryColor", e.target.value)
+                        handleThemeChange("secondary_color", e.target.value)
                       }
                       className="w-16 h-10 rounded cursor-pointer"
                     />
                     <input
                       type="text"
-                      value={company?.theme?.secondary_color}
+                      value={company?.theme?.secondary_color || "#0F172A"}
                       onChange={(e) =>
-                        handleThemeChange("secondaryColor", e.target.value)
+                        handleThemeChange("secondary_color", e.target.value)
                       }
                       className="input flex-1"
                     />
                   </div>
                 </div>
+
+                {/* Text Color */}
                 <div>
                   <label className="block text-sm font-medium mb-2">
                     Text Color
@@ -351,22 +370,24 @@ function BuilderContent() {
                   <div className="flex gap-3">
                     <input
                       type="color"
-                      value={company?.theme?.text_color}
+                      value={company?.theme?.text_color || "#E2E8F0"}
                       onChange={(e) =>
-                        handleThemeChange("textColor", e.target.value)
+                        handleThemeChange("text_color", e.target.value)
                       }
                       className="w-16 h-10 rounded cursor-pointer"
                     />
                     <input
                       type="text"
-                      value={company?.theme?.text_color}
+                      value={company?.theme?.text_color || "#E2E8F0"}
                       onChange={(e) =>
-                        handleThemeChange("textColor", e.target.value)
+                        handleThemeChange("text_color", e.target.value)
                       }
                       className="input flex-1"
                     />
                   </div>
                 </div>
+
+                {/* Background Color */}
                 <div>
                   <label className="block text-sm font-medium mb-2">
                     Background Color
@@ -374,17 +395,17 @@ function BuilderContent() {
                   <div className="flex gap-3">
                     <input
                       type="color"
-                      value={company?.theme?.background_color}
+                      value={company?.theme?.background_color || "#020617"}
                       onChange={(e) =>
-                        handleThemeChange("backgroundColor", e.target.value)
+                        handleThemeChange("background_color", e.target.value)
                       }
                       className="w-16 h-10 rounded cursor-pointer"
                     />
                     <input
                       type="text"
-                      value={company?.theme?.background_color}
+                      value={company?.theme?.background_color || "#020617"}
                       onChange={(e) =>
-                        handleThemeChange("backgroundColor", e.target.value)
+                        handleThemeChange("background_color", e.target.value)
                       }
                       className="input flex-1"
                     />
@@ -392,26 +413,32 @@ function BuilderContent() {
                 </div>
               </div>
 
-              {/* Color Preview */}
+              {/* Theme Preview */}
               <div className="mt-6 pt-6 border-t border-border">
-                <p className="text-sm font-medium mb-3">Preview</p>
+                <p className="text-sm font-medium mb-3">Live Theme Preview</p>
                 <div
-                  className="p-4 rounded border-2"
+                  className="p-6 rounded-lg border-2 shadow-inner transition-all"
                   style={{
                     backgroundColor: company?.theme?.background_color,
                     borderColor: company?.theme?.primary_color,
                     color: company?.theme?.text_color,
                   }}
                 >
-                  <p className="font-bold mb-2">Sample Text</p>
+                  <h3 className="font-bold text-lg mb-2">
+                    Whitecarrot Technologies
+                  </h3>
+                  <p className="mb-4 text-sm opacity-80">
+                    This is how your company theme will look on the careers
+                    page.
+                  </p>
                   <button
-                    className="px-4 py-2 rounded font-medium"
+                    className="px-4 py-2 rounded font-semibold transition-all"
                     style={{
                       backgroundColor: company?.theme?.primary_color,
                       color: company?.theme?.text_color,
                     }}
                   >
-                    Sample Button
+                    Apply Now
                   </button>
                 </div>
               </div>

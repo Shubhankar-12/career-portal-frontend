@@ -1,4 +1,4 @@
-import { setCookie } from "cookies-next";
+import { setCookie, deleteCookie } from "cookies-next";
 
 const TOKEN_KEY = "token";
 const USER_KEY = "careers_user";
@@ -44,6 +44,7 @@ export const authUtils = {
     if (typeof window !== "undefined") {
       localStorage.removeItem(TOKEN_KEY);
       localStorage.removeItem(USER_KEY);
+      deleteCookie(TOKEN_KEY);
     }
   },
 
