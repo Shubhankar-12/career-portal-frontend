@@ -8,6 +8,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { jobAPI, type Job } from "@/lib/api";
 import { AuthGuard } from "@/components/shared/auth-guard";
 
+import { toast } from "react-toastify";
 function JobEditContent() {
   const router = useRouter();
   const params = useParams();
@@ -55,7 +56,7 @@ function JobEditContent() {
     setSaving(true);
 
     try {
-      await jobAPI.update(jobId, {
+      const updatedJob = await jobAPI.update(jobId, {
         ...formData,
         company_id: user.company_id,
         salary_type: formData.salary_type as
@@ -64,6 +65,9 @@ function JobEditContent() {
           | "FIXED"
           | undefined,
       });
+      if (!updatedJob) throw new Error("Failed to update job");
+      toast.success("Job updated successfully");
+
       router.push("/jobs");
     } catch (err) {
       console.error("Error updating job:", err);

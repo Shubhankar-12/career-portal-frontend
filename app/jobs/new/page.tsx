@@ -5,8 +5,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAuthStore } from "@/store/useAuthStore";
-import { authAPI, companyAPI, jobAPI } from "@/lib/api";
+import { authAPI, jobAPI } from "@/lib/api";
 import { AuthGuard } from "@/components/shared/auth-guard";
+import { toast } from "react-toastify";
 
 function JobFormContent() {
   const router = useRouter();
@@ -94,8 +95,11 @@ function JobFormContent() {
         status: "OPEN" as const,
       };
 
-      await jobAPI.create(jobData);
-      router.push("/jobs");
+      const job = await jobAPI.create(jobData);
+      if (job) {
+        toast.success("Job created successfully");
+        router.push("/jobs");
+      }
     } catch (err) {
       console.error(err);
       setError(err instanceof Error ? err.message : "Failed to create job");

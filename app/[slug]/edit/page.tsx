@@ -10,6 +10,7 @@ import { companyAPI, type Company } from "@/lib/api";
 import { AuthGuard } from "@/components/shared/auth-guard";
 import { SectionEditor, type SectionData } from "@/components/section-editor";
 import { fileUploader } from "@/lib/utils";
+import { toast } from "react-toastify";
 
 function BuilderContent() {
   const router = useRouter();
@@ -161,6 +162,7 @@ function BuilderContent() {
       });
       if (updatedCompany) {
         setCompany(updatedCompany);
+        toast.success("Company updated successfully");
       }
     } finally {
       setSaving(false);

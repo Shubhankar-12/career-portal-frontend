@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { companyAPI } from "@/lib/api";
 import { slugify } from "@/lib/utils";
+import { toast } from "react-toastify";
 
 export default function CreateCompanyPage() {
   const router = useRouter();
@@ -58,6 +59,9 @@ export default function CreateCompanyPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    const isValid = await handleValidate();
+    if (!isValid) return;
     setLoading(true);
 
     try {
@@ -66,6 +70,7 @@ export default function CreateCompanyPage() {
         name: companyName,
         website: website,
       });
+      toast.success("Company created successfully");
       if (company) router.push(`/${slug}/edit`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create company");

@@ -13,6 +13,7 @@ import {
 } from "@/lib/api";
 import { AuthGuard } from "@/components/shared/auth-guard";
 
+import { toast } from "react-toastify";
 // Filter Enums
 const SortEnum = ["highest", "lowest", "newest", "oldest"] as const;
 const WorkTypeEnum = ["Remote", "Hybrid", "Onsite"] as const;
@@ -93,12 +94,16 @@ function JobsContent() {
   ]);
 
   // 🗂️ Handle archive
-  const handleArchive = async (jobId: string) => {
+  const handleArchive = async (jobId: string, title: string) => {
     try {
-      await jobAPI.update(jobId, { status: "CLOSED" });
-      setJobs((prev) =>
-        prev.map((j) => (j.job_id === jobId ? { ...j, status: "CLOSED" } : j))
-      );
+      const response = await jobAPI.update(jobId, { status: "CLOSED" });
+
+      if (response) {
+        setJobs((prev) =>
+          prev.map((j) => (j.job_id === jobId ? { ...j, status: "CLOSED" } : j))
+        );
+        toast.success(`Job "${title}" archived successfully`);
+      }
     } catch (error) {
       console.error("Failed to archive job:", error);
     }
@@ -276,7 +281,7 @@ function JobsContent() {
                         </Link>
                         {job.status === "OPEN" && (
                           <button
-                            onClick={() => handleArchive(job.job_id)}
+                            onClick={() => handleArchive(job.job_id, job.title)}
                             className="text-text-secondary hover:text-primary text-sm"
                           >
                             Close
