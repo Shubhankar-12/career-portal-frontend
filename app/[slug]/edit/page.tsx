@@ -11,6 +11,7 @@ import { AuthGuard } from "@/components/shared/auth-guard";
 import { SectionEditor, type SectionData } from "@/components/section-editor";
 import { fileUploader } from "@/lib/utils";
 import { toast } from "react-toastify";
+import { authUtils } from "@/lib/auth";
 
 function BuilderContent() {
   const router = useRouter();
@@ -84,6 +85,14 @@ function BuilderContent() {
     if (!comp || comp.user_id !== user.user_id) {
       router.push("/dashboard");
       return;
+    }
+    const currentComp = authUtils.getCompany();
+    if (!currentComp) {
+      authUtils.setCompany({
+        company_id: comp.company_id,
+        name: comp.name,
+        slug: comp.slug,
+      });
     }
     setCompany(comp);
     const initialSections: SectionData[] =

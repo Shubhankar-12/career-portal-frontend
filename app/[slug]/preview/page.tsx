@@ -15,12 +15,16 @@ import { AuthGuard } from "@/components/shared/auth-guard";
 import { getS3Url } from "@/lib/utils";
 import DOMPurify from "dompurify";
 import Image from "next/image";
+import { authUtils } from "@/lib/auth";
 
 function PreviewContent() {
   const params = useParams();
   const slug = params["slug"] as string;
   const user = useAuthStore((state) => state.user);
-  const [company, setCompany] = useState<Company | null>(null);
+  const currentComp = authUtils.getCompany();
+  const [company, setCompany] = useState<Company | null>(
+    currentComp as Company
+  );
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [publishing, setPublishing] = useState(false);
@@ -48,7 +52,6 @@ function PreviewContent() {
 
     try {
       const comp = await companyAPI.getBySlug(slug);
-      if (!comp) return;
       if (user && comp.user_id !== user.user_id) return;
       setCompany(comp);
 
@@ -70,7 +73,10 @@ function PreviewContent() {
       const updatedCompany = await companyAPI.update(company.company_id, {
         published: company.published === "DRAFT" ? "PUBLISHED" : "DRAFT",
       });
-      if (updatedCompany) setCompany(updatedCompany);
+      if (updatedCompany)
+        setCompany((prev) => {
+          return prev ? { ...prev, published: updatedCompany.published } : null;
+        });
     } finally {
       setPublishing(false);
     }
@@ -133,41 +139,61 @@ function PreviewContent() {
       )}
 
       {/* ---------- Header with Banner & Logo ---------- */}
-      <header className="relative w-full mb-16">
-        {/* Banner Image */}
-        {company.banner_url?.url && (
-          <div className="h-64 md:h-80 w-full overflow-hidden relative">
-            <Image
-              src={getS3Url(company.banner_url.url)}
-              alt={`${company.name} banner`}
-              className="w-full h-full object-cover"
-              width={200}
-              height={200}
-            />
-            <div className="absolute inset-0 bg-black/40" />
-          </div>
-        )}
+      <header
+        className="relative flex items-center justify-center text-center border-b border-border/50"
+        style={{
+          backgroundImage: company.banner_url?.url
+            ? `url(${process.env.NEXT_PUBLIC_S3_URL}/${company.banner_url.url})`
+            : "none",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          minHeight: "60vh",
+        }}
+      >
+        {/* Overlay for readability */}
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-[1px]" />
 
-        {/* Logo Overlay */}
-        {company.logo_url?.url && (
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-sm p-3 rounded-xl shadow-lg">
-            <Link
-              href={company.website || "#"}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block transition-transform hover:scale-105"
-            >
-              <Image
-                src={`${process.env.NEXT_PUBLIC_S3_URL}/${company.logo_url.url}`}
-                alt={`${company.name} Logo`}
-                width={160}
-                height={160}
-                className="object-contain h-16 w-auto drop-shadow-md"
-                priority
-              />
-            </Link>
-          </div>
-        )}
+        {/* Content on top of the banner */}
+        <div className="relative z-10 px-6 py-16 max-w-4xl mx-auto">
+          {company.logo_url?.url && (
+            <div className="flex justify-center mb-6">
+              <Link
+                href={company.website || "#"}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block transition-transform hover:scale-105"
+              >
+                <Image
+                  src={`${process.env.NEXT_PUBLIC_S3_URL}/${company.logo_url.url}`}
+                  alt={`${company.name} Logo`}
+                  width={160}
+                  height={160}
+                  className="object-contain h-16 w-auto drop-shadow-md"
+                  priority
+                />
+              </Link>
+            </div>
+          )}
+
+          <h1
+            className="text-5xl font-bold mb-4"
+            style={{
+              color: company.theme?.text_color || "#FFFFFF",
+            }}
+          >
+            Join {company.name}
+          </h1>
+
+          <p
+            className="text-lg leading-relaxed max-w-2xl mx-auto opacity-90"
+            style={{
+              color: company.theme?.text_color || "#F3F4F6",
+            }}
+          >
+            {company.description}
+          </p>
+        </div>
       </header>
 
       {/* ---------- Career Page Content ---------- */}

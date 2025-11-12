@@ -54,6 +54,10 @@ export function LoginForm() {
         result.token
       );
 
+      if (!result?.company?.company_id) {
+        authUtils.setCompany(result?.company);
+      }
+
       const user = await authAPI.getUserById(result.user.user_id);
       console.log("user", user);
 

@@ -8,6 +8,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { companyAPI } from "@/lib/api";
 import { slugify } from "@/lib/utils";
 import { toast } from "react-toastify";
+import { authUtils } from "@/lib/auth";
 
 export default function CreateCompanyPage() {
   const router = useRouter();
@@ -70,6 +71,7 @@ export default function CreateCompanyPage() {
         name: companyName,
         website: website,
       });
+
       toast.success("Company created successfully");
       if (company) router.push(`/${slug}/edit`);
     } catch (err) {

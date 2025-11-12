@@ -2,12 +2,19 @@ import { setCookie, deleteCookie } from "cookies-next";
 
 const TOKEN_KEY = "token";
 const USER_KEY = "careers_user";
+const COMPANY_KEY = "company";
 
 export interface CurrentUser {
   user_id: string;
   email: string;
   name: string;
   company_id?: string;
+}
+
+export interface Company {
+  company_id: string;
+  name: string;
+  slug: string;
 }
 
 export const authUtils = {
@@ -50,5 +57,19 @@ export const authUtils = {
 
   isAuthenticated: (): boolean => {
     return !!authUtils.getToken();
+  },
+
+  setCompany: (company: Company) => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(COMPANY_KEY, JSON.stringify(company));
+    }
+  },
+
+  getCompany: (): Company | null => {
+    if (typeof window !== "undefined") {
+      const company = localStorage.getItem(COMPANY_KEY);
+      return company ? JSON.parse(company) : null;
+    }
+    return null;
   },
 };

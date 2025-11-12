@@ -20,22 +20,22 @@ function JobEditContent() {
   const [error, setError] = useState("");
   const [formData, setFormData] = useState<Partial<Job> | null>(null);
 
-  useEffect(() => {
-    const fetchJob = async () => {
-      try {
-        const job = await jobAPI.getById(jobId);
-        if (!job) {
-          setError("Job not found");
-          return;
-        }
-        setFormData(job);
-      } catch (err) {
-        console.error("Error fetching job:", err);
-        setError("Failed to load job details");
-      } finally {
-        setLoading(false);
+  const fetchJob = async () => {
+    try {
+      const job = await jobAPI.getById(jobId);
+      if (!job) {
+        setError("Job not found");
+        return;
       }
-    };
+      setFormData(job);
+    } catch (err) {
+      console.error("Error fetching job:", err);
+      setError("Failed to load job details");
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
     fetchJob();
   }, [jobId]);
 
