@@ -44,6 +44,13 @@ export function LoginForm() {
         name: result.user.name,
         company_id: result?.company?.company_id || undefined,
       });
+      if (result?.company?.company_id) {
+        authUtils.setCompany({
+          company_id: result?.company?.company_id,
+          name: result?.company?.name,
+          slug: result?.company?.slug,
+        });
+      }
       setAuth(
         {
           user_id: result.user.user_id,

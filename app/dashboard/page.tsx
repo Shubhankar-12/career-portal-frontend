@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import {
   companyAPI,
+  Job,
   jobAPI,
   type Company,
   type JobListResponse,
@@ -18,7 +19,16 @@ function DashboardContent() {
   const user = authUtils.getUser();
   const currentCompany = authUtils.getCompany();
   const [company, setCompany] = useState<Company | null>(null);
-  const [jobs, setJobs] = useState<any[]>([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [jonMeta, setJobMeta] = useState<{
+    totalCount: number;
+    openJobs: number;
+    closedJobs: number;
+  }>({
+    totalCount: 0,
+    openJobs: 0,
+    closedJobs: 0,
+  });
   const [loading, setLoading] = useState(true);
 
   const fetchDashboardData = async () => {
@@ -36,6 +46,8 @@ function DashboardContent() {
       });
 
       setJobs(jobResponse.result || []);
+
+      setJobMeta(jobResponse.metadata);
     } catch (error) {
       console.error("Error loading dashboard:", error);
     } finally {
@@ -45,6 +57,23 @@ function DashboardContent() {
   useEffect(() => {
     fetchDashboardData();
   }, []);
+
+  const [publishing, setPublishing] = useState(false);
+  const handlePublish = async () => {
+    if (!company) return;
+    setPublishing(true);
+    try {
+      const updatedCompany = await companyAPI.update(company.company_id, {
+        published: company.published === "DRAFT" ? "PUBLISHED" : "DRAFT",
+      });
+      if (updatedCompany)
+        setCompany((prev) => {
+          return prev ? { ...prev, published: updatedCompany.published } : null;
+        });
+    } finally {
+      setPublishing(false);
+    }
+  };
 
   const handleSignOut = () => {
     authUtils.logout();
@@ -83,9 +112,6 @@ function DashboardContent() {
     );
   }
 
-  const activeJobs = jobs.filter((j) => j.status === "OPEN").length;
-  const closedJobs = jobs.filter((j) => j.status === "CLOSED").length;
-
   return (
     <div className="min-h-screen flex flex-col">
       <header className="border-b border-border py-4 px-6">
@@ -117,17 +143,32 @@ function DashboardContent() {
             </div>
             <div className="card">
               <p className="text-text-secondary text-sm mb-1">Status</p>
-              <h3 className="text-xl font-bold">
-                {company.published === "PUBLISHED" ? (
-                  <span className="text-green-400">Published</span>
-                ) : (
-                  <span className="text-yellow-400">Draft</span>
-                )}
-              </h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-bold">
+                  {company.published === "PUBLISHED" ? (
+                    <span className="text-green-400">Published</span>
+                  ) : (
+                    <span className="text-yellow-400">Draft</span>
+                  )}
+                </h3>
+
+                <button
+                  onClick={handlePublish}
+                  className={`ml-2 px-3 py-1.5 text-sm rounded-full font-medium transition-all cursor-pointer
+        ${
+          company.published === "PUBLISHED"
+            ? "bg-green-500/20 text-green-400 hover:bg-green-500/30"
+            : "bg-yellow-500/20 text-yellow-400 hover:bg-yellow-500/30"
+        }`}
+                >
+                  {company.published === "PUBLISHED" ? "Unpublish" : "Publish"}
+                </button>
+              </div>
             </div>
+
             <div className="card">
               <p className="text-text-secondary text-sm mb-1">Active Jobs</p>
-              <h3 className="text-xl font-bold">{activeJobs}</h3>
+              <h3 className="text-xl font-bold">{jonMeta.openJobs}</h3>
             </div>
           </div>
 
@@ -135,15 +176,15 @@ function DashboardContent() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="card">
               <p className="text-text-secondary text-sm mb-1">Active Jobs</p>
-              <h3 className="text-3xl font-bold">{activeJobs}</h3>
+              <h3 className="text-3xl font-bold">{jonMeta.openJobs}</h3>
             </div>
             <div className="card">
               <p className="text-text-secondary text-sm mb-1">Closed Jobs</p>
-              <h3 className="text-3xl font-bold">{closedJobs}</h3>
+              <h3 className="text-3xl font-bold">{jonMeta.closedJobs}</h3>
             </div>
             <div className="card">
               <p className="text-text-secondary text-sm mb-1">Total Jobs</p>
-              <h3 className="text-3xl font-bold">{jobs.length}</h3>
+              <h3 className="text-3xl font-bold">{jonMeta.totalCount}</h3>
             </div>
           </div>
 

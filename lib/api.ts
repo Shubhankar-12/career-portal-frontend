@@ -206,6 +206,8 @@ export interface JobListResponse {
   result: Job[];
   metadata: {
     totalCount: number;
+    openJobs: number;
+    closedJobs: number;
   };
 }
 
