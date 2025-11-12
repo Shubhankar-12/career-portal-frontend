@@ -87,27 +87,43 @@ function PreviewContent() {
     >
       {/* Recruiter Sticky Bar */}
       {user && company.user_id === user.user_id && (
-        <div className="border-b border-border/50 py-3 px-6 bg-background/90 backdrop-blur sticky top-0 z-50">
-          <div className="max-w-6xl mx-auto flex items-center justify-between">
+        <div className="sticky top-0 z-50 border-b border-border/50 bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md">
+          <div className="max-w-6xl mx-auto flex items-center justify-between py-3 px-6">
+            {/* Back to Editor */}
             <Link
               href={`/${slug}/edit`}
-              className="text-accent hover:underline text-sm"
+              className="text-sm font-medium text-gray-600 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400 transition-colors"
             >
               ← Back to Editor
             </Link>
-            <div className="space-x-4">
+
+            {/* Buttons */}
+            <div className="flex items-center gap-3">
+              {/* Publish / Unpublish */}
               <button
                 onClick={handlePublish}
                 disabled={publishing}
-                className="text-sm px-3 py-1 bg-secondary/50 rounded hover:bg-secondary/70 disabled:opacity-50"
+                className={`text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-sm 
+            ${
+              company.published === "PUBLISHED"
+                ? "bg-red-500 hover:bg-red-600 text-white"
+                : "bg-blue-600 hover:bg-blue-700 text-white"
+            } 
+            disabled:opacity-50`}
               >
-                {company.published === "PUBLISHED" ? "Unpublish" : "Publish"}
+                {publishing
+                  ? "Processing..."
+                  : company.published === "PUBLISHED"
+                  ? "Unpublish"
+                  : "Publish"}
               </button>
+
+              {/* View Public Page */}
               <a
                 href={`/${slug}/careers`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm px-3 py-1 bg-accent/20 text-accent rounded hover:bg-accent/30"
+                className="text-sm font-medium px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-800 transition-colors"
               >
                 View Public Page →
               </a>
