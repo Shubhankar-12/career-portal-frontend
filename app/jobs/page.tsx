@@ -4,16 +4,11 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
-import {
-  authAPI,
-  companyAPI,
-  jobAPI,
-  type Job,
-  type JobListResponse,
-} from "@/lib/api";
+import { authAPI, jobAPI, type Job, type JobListResponse } from "@/lib/api";
 import { AuthGuard } from "@/components/shared/auth-guard";
 
 import { toast } from "react-toastify";
+import { authUtils } from "@/lib/auth";
 // Filter Enums
 const SortEnum = ["highest", "lowest", "newest", "oldest"] as const;
 const WorkTypeEnum = ["Remote", "Hybrid", "Onsite"] as const;
@@ -22,7 +17,7 @@ const SalaryTypeEnum = ["CONFIDENTIAL", "RANGE", "FIXED"] as const;
 function JobsContent() {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
-
+  const currentComp = authUtils.getCompany();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [company, setCompany] = useState<any>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -40,17 +35,18 @@ function JobsContent() {
   >("newest");
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [totalDocs, setTotalDocs] = useState(1);
   const itemsPerPage = 10;
 
   // 🧩 Fetch all jobs with filters
   const fetchAllJobs = async () => {
-    if (!user?.company_id) return;
+    if (!currentComp?.company_id) return;
     try {
       setLoading(true);
 
       const filters = {
-        company_id: user.company_id,
+        company_id: currentComp.company_id,
         search: searchTerm || undefined,
         work_policy: workModeFilter !== "all" ? workModeFilter : undefined,
         salary_type: salaryTypeFilter !== "all" ? salaryTypeFilter : undefined,
@@ -62,6 +58,7 @@ function JobsContent() {
 
       const response: JobListResponse = await jobAPI.getAllJobs(filters);
       setJobs(response.result);
+      setTotalDocs(response.metadata.totalCount);
     } catch (error) {
       console.error("Failed to fetch jobs:", error);
     } finally {
@@ -308,22 +305,39 @@ function JobsContent() {
         {/* Pagination */}
         {jobs.length > 0 && (
           <div className="flex justify-between items-center mt-8">
-            <div className="text-text-secondary text-sm">
-              Page {currentPage}
+            {/* Page Info */}
+            <div className="text-muted-foreground text-sm">
+              Page {currentPage} of {Math.ceil(totalDocs / itemsPerPage)}
             </div>
-            <div className="space-x-2">
+
+            {/* Pagination Buttons */}
+            <div className="space-x-3">
+              {/* Previous */}
               <button
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
-                className="px-4 py-2 bg-secondary/50 text-primary rounded disabled:opacity-50"
+                className={`px-4 py-2 rounded-lg border transition-colors duration-200
+          ${
+            currentPage === 1
+              ? "bg-muted text-muted-foreground cursor-not-allowed opacity-60"
+              : "bg-primary text-primary-foreground hover:bg-primary/90 border-transparent"
+          }`}
               >
-                Previous
+                ← Previous
               </button>
+
+              {/* Next */}
               <button
-                onClick={() => setCurrentPage(currentPage + 1)}
-                className="px-4 py-2 bg-secondary/50 text-primary rounded"
+                onClick={() => setCurrentPage((prev) => prev + 1)}
+                disabled={currentPage * itemsPerPage >= totalDocs}
+                className={`px-4 py-2 rounded-lg border transition-colors duration-200
+          ${
+            currentPage * itemsPerPage >= totalDocs
+              ? "bg-muted text-muted-foreground cursor-not-allowed opacity-60"
+              : "bg-primary text-primary-foreground hover:bg-primary/90 border-transparent"
+          }`}
               >
-                Next
+                Next →
               </button>
             </div>
           </div>

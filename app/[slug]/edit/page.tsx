@@ -183,6 +183,11 @@ function BuilderContent() {
       });
       if (updatedCompany) {
         setCompany(updatedCompany);
+        authUtils.setCompany({
+          company_id: updatedCompany.company_id,
+          name: updatedCompany.name,
+          slug: updatedCompany.slug,
+        });
         toast.success("Company updated successfully");
       }
     } finally {

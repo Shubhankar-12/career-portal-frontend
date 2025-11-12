@@ -59,7 +59,8 @@ export interface Company {
   };
   sections?: any[];
   published?: string;
-  createdAt?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 // ====== Helper ======

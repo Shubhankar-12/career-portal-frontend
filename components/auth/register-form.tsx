@@ -1,62 +1,75 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { authAPI } from "@/lib/api"
-import { authUtils } from "@/lib/auth"
-import { useAuthStore } from "@/store/useAuthStore"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { authAPI } from "@/lib/api";
+import { authUtils } from "@/lib/auth";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export function RegisterForm() {
-  const router = useRouter()
-  const setAuth = useAuthStore((state) => state.setAuth)
+  const router = useRouter();
+  const setAuth = useAuthStore((state) => state.setAuth);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
-  })
-  const [error, setError] = useState("")
-  const [loading, setLoading] = useState(false)
+  });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError("")
+    e.preventDefault();
+    setError("");
 
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match")
-      return
+      setError("Passwords do not match");
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
     try {
-      const result = authAPI.register(formData.email, formData.password, formData.name)
-      authUtils.setToken(result.token)
+      const result = await authAPI.register(
+        formData.email,
+        formData.password,
+        formData.name
+      );
+      authUtils.setToken(result.token);
       authUtils.setUser({
-        id: result.userId,
-        email: result.email,
-        name: result.name,
-      })
-      setAuth({ id: result.userId, email: result.email, name: result.name }, result.token)
-      console.log({ id: result.userId, email: result.email, name: result.name })
-      router.push("/create-company")
+        user_id: result.user.user_id,
+        email: result.user.email,
+        name: result.user.name,
+      });
+      setAuth(
+        {
+          user_id: result.user.user_id,
+          email: result.user.email,
+          name: result.user.name,
+        },
+        result.token
+      );
+
+      router.push("/create-company");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Registration failed")
+      setError(err instanceof Error ? err.message : "Registration failed");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4 w-full max-w-md">
       {error && (
-        <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">{error}</div>
+        <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
+          {error}
+        </div>
       )}
       <div>
         <label htmlFor="name" className="block text-sm font-medium mb-1">
@@ -104,7 +117,10 @@ export function RegisterForm() {
         />
       </div>
       <div>
-        <label htmlFor="confirmPassword" className="block text-sm font-medium mb-1">
+        <label
+          htmlFor="confirmPassword"
+          className="block text-sm font-medium mb-1"
+        >
           Confirm Password
         </label>
         <input
@@ -118,9 +134,13 @@ export function RegisterForm() {
           required
         />
       </div>
-      <button type="submit" disabled={loading} className="btn-primary w-full disabled:opacity-50">
+      <button
+        type="submit"
+        disabled={loading}
+        className="btn-primary w-full disabled:opacity-50"
+      >
         {loading ? "Creating account..." : "Create Account"}
       </button>
     </form>
-  )
+  );
 }

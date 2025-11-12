@@ -15,40 +15,36 @@ import { AuthGuard } from "@/components/shared/auth-guard";
 
 function DashboardContent() {
   const router = useRouter();
-  const user = useAuthStore((state) => state.user);
+  const user = authUtils.getUser();
+  const currentCompany = authUtils.getCompany();
   const [company, setCompany] = useState<Company | null>(null);
   const [jobs, setJobs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!user?.company_id) {
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      console.log("currentCompany", currentCompany);
+
+      // ✅ Fetch company details
+      const comp = await companyAPI.getById(currentCompany?.company_id!);
+      setCompany(comp);
+
+      // ✅ Fetch all jobs for that company
+      const jobResponse: JobListResponse = await jobAPI.getAllJobs({
+        company_id: currentCompany?.company_id!,
+      });
+
+      setJobs(jobResponse.result || []);
+    } catch (error) {
+      console.error("Error loading dashboard:", error);
+    } finally {
       setLoading(false);
-      return;
     }
-
-    const fetchDashboardData = async () => {
-      try {
-        setLoading(true);
-
-        // ✅ Fetch company details
-        const comp = await companyAPI.getById(user.company_id!);
-        setCompany(comp);
-
-        // ✅ Fetch all jobs for that company
-        const jobResponse: JobListResponse = await jobAPI.getAllJobs({
-          company_id: user.company_id!,
-        });
-
-        setJobs(jobResponse.result || []);
-      } catch (error) {
-        console.error("Error loading dashboard:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
+  };
+  useEffect(() => {
     fetchDashboardData();
-  }, [user, router]);
+  }, []);
 
   const handleSignOut = () => {
     authUtils.logout();
