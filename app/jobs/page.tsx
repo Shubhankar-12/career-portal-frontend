@@ -275,14 +275,14 @@ function JobsContent() {
                       <div className="flex gap-2">
                         <Link
                           href={`/jobs/${job.job_id}/edit`}
-                          className="text-accent hover:underline text-sm"
+                          className="text-primary hover:text-text-secondary text-sm"
                         >
                           Edit
                         </Link>
                         {job.status === "OPEN" && (
                           <button
                             onClick={() => handleArchive(job.job_id, job.title)}
-                            className="text-text-secondary hover:text-primary text-sm"
+                            className="text-red-600 hover:text-red-500 text-sm"
                           >
                             Close
                           </button>

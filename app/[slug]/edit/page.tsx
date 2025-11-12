@@ -25,6 +25,15 @@ function BuilderContent() {
   const [logo, setLogo] = useState<File | null>(null);
   const [cover, setCover] = useState<File | null>(null);
 
+  const updateCompany = (field: Partial<Company>) => {
+    if (!company) return;
+    setCompany((prev) => (prev ? { ...prev, ...field } : null));
+  };
+
+  useEffect(() => {
+    console.log("logo", company?.logo_url);
+  }, [company?.logo_url, company?.logo_url?.url]);
+
   const handleUpload = async (type: "logo" | "cover") => {
     try {
       setLoading(true);
@@ -52,7 +61,8 @@ function BuilderContent() {
         // update company logo
         if (resp) {
           console.log("resp", resp);
-          setCompany((prev) => (prev ? { ...prev, logo_url: resp } : null));
+          updateCompany({ logo_url: resp });
+          setLogo(null);
         }
       }
       if (type === "cover") {
@@ -60,7 +70,9 @@ function BuilderContent() {
         const resp = await handleUpload("cover");
         // update company cover
         if (resp) {
-          setCompany((prev) => (prev ? { ...prev, banner_url: resp } : null));
+          console.log("resp", resp);
+          updateCompany({ banner_url: resp });
+          setCover(null);
         }
       }
     }
@@ -192,7 +204,7 @@ function BuilderContent() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="border-b border-border py-4 px-6 sticky top-0 bg-background/95 backdrop-blur">
+      <header className="border-b border-border py-4 px-6 sticky top-0 bg-background/95 backdrop-blur z-10">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div>
             <Link
@@ -258,24 +270,36 @@ function BuilderContent() {
                     Company Logo
                   </label>
                   <div className="flex items-center gap-4">
+                    {/* ✅ Preview existing logo */}
                     {company.logo_url?.url && (
                       <img
-                        src={
-                          process.env.NEXT_PUBLIC_S3_URL +
-                          "/" +
-                          company.logo_url.url
-                        }
+                        src={`${process.env.NEXT_PUBLIC_S3_URL}/${company.logo_url.url}`}
                         alt="Logo Preview"
-                        className="w-16 h-16 object-cover rounded border"
+                        className="w-16 h-16 object-cover rounded-lg border border-border shadow-sm"
                       />
                     )}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={async (e) => {
-                        handleFileChange(e, "logo");
-                      }}
-                    />
+
+                    {/* ✅ Custom File Upload */}
+                    <label className="relative cursor-pointer bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition flex items-center gap-2">
+                      <span>Update Logo</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={async (e) => handleFileChange(e, "logo")}
+                        className="absolute inset-0 opacity-0 cursor-pointer z-0"
+                      />
+                    </label>
+
+                    {/* ✅ Show selected filename */}
+                    {company.logo_url ? (
+                      <span className="text-sm text-text-secondary italic truncate max-w-[200px]">
+                        {company.logo_url.name}
+                      </span>
+                    ) : (
+                      <span className="text-sm text-text-secondary italic">
+                        No file selected
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -296,13 +320,26 @@ function BuilderContent() {
                         className="w-full h-32 object-cover rounded border"
                       />
                     )}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={async (e) => {
-                        handleFileChange(e, "cover");
-                      }}
-                    />
+                    <label className="relative cursor-pointer bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition flex items-center gap-2">
+                      <span>Update Banner</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={async (e) => handleFileChange(e, "cover")}
+                        className="absolute inset-0 opacity-0 cursor-pointer z-0"
+                      />
+                    </label>
+
+                    {/* ✅ Show selected filename */}
+                    {company.banner_url ? (
+                      <span className="text-sm text-text-secondary italic truncate max-w-[200px]">
+                        {company.banner_url.name}
+                      </span>
+                    ) : (
+                      <span className="text-sm text-text-secondary italic">
+                        No file selected
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>

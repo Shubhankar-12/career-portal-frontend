@@ -99,7 +99,7 @@ function DashboardContent() {
             <span className="text-text-secondary">{user?.name}</span>
             <button
               onClick={handleSignOut}
-              className="text-text-secondary hover:text-primary cursor-pointer"
+              className="text-red-600 hover:text-red-500 cursor-pointer"
             >
               Sign Out
             </button>
