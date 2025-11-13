@@ -23,8 +23,7 @@ function BuilderContent() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-  const [logo, setLogo] = useState<File | null>(null);
-  const [cover, setCover] = useState<File | null>(null);
+  const [uploading, setUploading] = useState<"logo" | "cover" | null>(null);
 
   const updateCompany = (field: Partial<Company>) => {
     if (!company) return;
@@ -35,18 +34,23 @@ function BuilderContent() {
     console.log("logo", company?.logo_url);
   }, [company?.logo_url, company?.logo_url?.url]);
 
-  const handleUpload = async (type: "logo" | "cover") => {
+  const handleUpload = async (file: File | null, type: "logo" | "cover") => {
+    if (!file || !company) return null;
+
     try {
-      setLoading(true);
+      setUploading(type);
       const resp = await fileUploader(
-        type === "logo" ? logo : cover,
-        company?.name.toLowerCase().replace(/\s/g, "-")
+        file,
+        company.name.toLowerCase().replace(/\s/g, "-")
       );
       console.log("response media", resp);
-      setLoading(false);
       return resp;
     } catch (error) {
       console.log(error);
+      toast.error(`Failed to upload ${type}`);
+      return null;
+    } finally {
+      setUploading(null);
     }
   };
 
@@ -56,26 +60,22 @@ function BuilderContent() {
   ) => {
     if (e.target.files && e.target.files.length > 0) {
       const selectedFile = e.target.files[0];
-      if (type === "logo") {
-        setLogo(selectedFile);
-        const resp = await handleUpload("logo");
-        // update company logo
-        if (resp) {
-          console.log("resp", resp);
+
+      const resp = await handleUpload(selectedFile, type);
+
+      if (resp) {
+        console.log("resp", resp);
+        if (type === "logo") {
           updateCompany({ logo_url: resp });
-          setLogo(null);
-        }
-      }
-      if (type === "cover") {
-        setCover(selectedFile);
-        const resp = await handleUpload("cover");
-        // update company cover
-        if (resp) {
-          console.log("resp", resp);
+        } else if (type === "cover") {
           updateCompany({ banner_url: resp });
-          setCover(null);
         }
+        toast.success(
+          `${type === "logo" ? "Logo" : "Banner"} uploaded successfully`
+        );
       }
+
+      e.target.value = "";
     }
   };
 
@@ -295,10 +295,14 @@ function BuilderContent() {
 
                     {/* ✅ Custom File Upload */}
                     <label className="relative cursor-pointer bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition flex items-center gap-2">
-                      <span>Update Logo</span>
+                      <span>
+                        {uploading === "logo" ? "Uploading..." : "Upload Logo"}
+                      </span>
                       <input
                         type="file"
                         accept="image/*"
+                        name="logo"
+                        disabled={uploading === "logo"}
                         onChange={async (e) => handleFileChange(e, "logo")}
                         className="absolute inset-0 opacity-0 cursor-pointer z-0"
                       />
@@ -335,9 +339,14 @@ function BuilderContent() {
                       />
                     )}
                     <label className="relative cursor-pointer bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary/90 transition flex items-center gap-2">
-                      <span>Update Banner</span>
+                      <span>
+                        {uploading === "cover"
+                          ? "Uploading..."
+                          : "Upload Banner"}
+                      </span>
                       <input
                         type="file"
+                        disabled={uploading === "cover"}
                         accept="image/*"
                         onChange={async (e) => handleFileChange(e, "cover")}
                         className="absolute inset-0 opacity-0 cursor-pointer z-0"
