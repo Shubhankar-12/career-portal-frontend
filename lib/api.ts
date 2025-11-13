@@ -1,8 +1,7 @@
 import { getCookie } from "cookies-next";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-// ====== Interfaces ======
 export interface AuthResponse {
   token: string;
   user: {
@@ -63,7 +62,6 @@ export interface Company {
   updated_at?: string;
 }
 
-// ====== Helper ======
 async function handleResponse(res: Response) {
   if (!res.ok) {
     const text = await res.text();
@@ -72,7 +70,6 @@ async function handleResponse(res: Response) {
   return res.json();
 }
 
-// ====== Auth API ======
 export const authAPI = {
   register: async (
     email: string,
@@ -99,7 +96,6 @@ export const authAPI = {
   getUserById: async (userId: string): Promise<User> => {
     const res = await fetch(`${API_URL}/users/?user_id=${userId}`, {
       method: "GET",
-      // bearer token
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${getCookie("token")}`,
@@ -109,7 +105,6 @@ export const authAPI = {
   },
 };
 
-// ====== Company API ======
 export const companyAPI = {
   getBySlug: async (slug: string): Promise<Company> => {
     const res = await fetch(`${API_URL}/company/?slug=${slug}`, {
@@ -165,8 +160,6 @@ export const companyAPI = {
   },
 };
 
-// ====== Job API ======
-// ===== Interfaces =====
 export interface Job {
   job_id: string;
   company_id: string;
@@ -213,9 +206,7 @@ export interface JobListResponse {
   };
 }
 
-// ===== Job API =====
 export const jobAPI = {
-  // 🟢 Create a new job
   create: async (data: Omit<Job, "job_id">): Promise<Job> => {
     const res = await fetch(`${API_URL}/jobs/create`, {
       method: "POST",
@@ -228,7 +219,6 @@ export const jobAPI = {
     return handleResponse(res);
   },
 
-  // 🟠 Update a job
   update: async (jobId: string, data: Partial<Job>): Promise<Job> => {
     const res = await fetch(`${API_URL}/jobs/update`, {
       method: "PATCH",
@@ -241,9 +231,7 @@ export const jobAPI = {
     return handleResponse(res);
   },
 
-  // 🟣 Get all jobs (with optional filters/pagination)
   getAllJobs: async (filters: JobFilters): Promise<JobListResponse> => {
-    // ✅ Build query params dynamically
     const queryParams = new URLSearchParams();
 
     Object.entries(filters).forEach(([key, value]) => {
@@ -262,7 +250,6 @@ export const jobAPI = {
     return handleResponse(res);
   },
 
-  // 🔵 Get job by ID
   getById: async (jobId: string): Promise<Job> => {
     const res = await fetch(`${API_URL}/jobs?job_id=${jobId}`, {
       method: "GET",
@@ -273,7 +260,6 @@ export const jobAPI = {
     return handleResponse(res);
   },
 
-  // 🔴 Delete a job
   delete: async (jobId: string): Promise<{ success: boolean }> => {
     const res = await fetch(`${API_URL}/jobs/delete`, {
       method: "DELETE",
@@ -313,7 +299,6 @@ export const filesAPI = {
       throw new Error(errorText || "File upload failed");
     }
 
-    // ✅ Return parsed JSON directly
     const data = await res.json();
     return data;
   },

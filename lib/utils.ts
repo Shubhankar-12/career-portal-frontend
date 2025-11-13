@@ -32,17 +32,13 @@ export const fileUploader = async (file: any, folderPath?: any) => {
   }
 };
 
-// return bucket url  process.env.NEXT_PUBLIC_S3_URL + key
 export const getS3Url = (key: string) => {
-  // if key is null or undefined, return ""
   if (!key) {
     return "";
   }
-  // if key starts with "https://", return key
   if (key.startsWith("https://")) {
     return key;
   }
-  // otherwise, return process.env.NEXT_PUBLIC_S3_URL + key if doesn't start with "/"
   if (!key.startsWith("/")) {
     return process.env.NEXT_PUBLIC_S3_URL + "/" + key;
   }
