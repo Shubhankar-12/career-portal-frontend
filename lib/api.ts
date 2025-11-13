@@ -179,6 +179,7 @@ export interface Job {
   experience_level?: string;
   job_type?: string;
   salary_type?: "CONFIDENTIAL" | "RANGE" | "FIXED";
+  salary_frequency?: "MONTHLY" | "YEARLY";
   min_salary?: number;
   max_salary?: number;
   salary_fixed?: number;

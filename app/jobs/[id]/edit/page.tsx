@@ -9,6 +9,7 @@ import { jobAPI, type Job } from "@/lib/api";
 import { AuthGuard } from "@/components/shared/auth-guard";
 
 import { toast } from "react-toastify";
+import CurrencySelect from "@/components/CurrencySelect";
 function JobEditContent() {
   const router = useRouter();
   const params = useParams();
@@ -118,28 +119,88 @@ function JobEditContent() {
                 placeholder="e.g., 1200000"
               />
             </div>
+            <div>
+              <label
+                htmlFor="salary_frequency"
+                className="block text-sm font-medium mb-2"
+              >
+                Salary Frequency
+              </label>
+              <select
+                id="salary_frequency"
+                name="salary_frequency"
+                value={formData.salary_frequency || "YEARLY"}
+                onChange={(e) =>
+                  setFormData((prev) =>
+                    prev
+                      ? {
+                          ...prev,
+                          salary_frequency: e.target.value as
+                            | "YEARLY"
+                            | "MONTHLY",
+                        }
+                      : prev
+                  )
+                }
+                className="input"
+              >
+                <option value="YEARLY">Yearly</option>
+                <option value="MONTHLY">Monthly</option>
+              </select>
+            </div>
           </div>
         );
 
       case "FIXED":
         return (
-          <div>
-            <label
-              htmlFor="salary_fixed"
-              className="block text-sm font-medium mb-2"
-            >
-              Fixed Salary
-            </label>
-            <input
-              id="salary_fixed"
-              name="salary_fixed"
-              type="number"
-              value={formData.salary_fixed || ""}
-              onChange={handleChange}
-              className="input"
-              placeholder="e.g., 1000000"
-            />
-          </div>
+          <>
+            <div>
+              <label
+                htmlFor="salary_fixed"
+                className="block text-sm font-medium mb-2"
+              >
+                Fixed Salary
+              </label>
+              <input
+                id="salary_fixed"
+                name="salary_fixed"
+                type="number"
+                value={formData.salary_fixed || ""}
+                onChange={handleChange}
+                className="input"
+                placeholder="e.g., 1000000"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="salary_frequency"
+                className="block text-sm font-medium mb-2"
+              >
+                Salary Frequency
+              </label>
+              <select
+                id="salary_frequency"
+                name="salary_frequency"
+                value={formData.salary_frequency || "YEARLY"}
+                onChange={(e) =>
+                  setFormData((prev) =>
+                    prev
+                      ? {
+                          ...prev,
+                          salary_frequency: e.target.value as
+                            | "YEARLY"
+                            | "MONTHLY",
+                        }
+                      : prev
+                  )
+                }
+                className="input"
+              >
+                <option value="YEARLY">Yearly</option>
+                <option value="MONTHLY">Monthly</option>
+              </select>
+            </div>
+          </>
         );
 
       default:
@@ -336,6 +397,23 @@ function JobEditContent() {
               <option value="RANGE">Range</option>
               <option value="FIXED">Fixed</option>
             </select>
+          </div>
+
+          <div>
+            <label
+              htmlFor="currency"
+              className="block text-sm font-medium mb-2"
+            >
+              Currency
+            </label>
+            <CurrencySelect
+              value={formData.currency || "INR"}
+              onChange={(value) =>
+                setFormData({ ...formData, currency: value })
+              }
+              id="currency"
+              name="currency"
+            />
           </div>
 
           {/* Salary Fields */}

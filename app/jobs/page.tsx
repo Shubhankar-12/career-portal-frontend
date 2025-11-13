@@ -234,6 +234,9 @@ function JobsContent() {
                 <th className="text-left py-3 px-4 font-semibold">
                   Salary Type
                 </th>
+                <th className="text-left py-3 px-4 font-semibold">
+                  Salary Frequency
+                </th>
                 <th className="text-left py-3 px-4 font-semibold">Status</th>
                 <th className="text-left py-3 px-4 font-semibold">Actions</th>
               </tr>
@@ -256,6 +259,9 @@ function JobsContent() {
                     </td>
                     <td className="py-3 px-4 text-sm">
                       {job.salary_type || "CONFIDENTIAL"}
+                    </td>
+                    <td className="py-3 px-4 text-sm">
+                      {job.salary_frequency || "YEARLY"}
                     </td>
                     <td className="py-3 px-4">
                       <span
