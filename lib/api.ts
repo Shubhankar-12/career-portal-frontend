@@ -209,6 +209,7 @@ export interface JobListResponse {
     totalCount: number;
     openJobs: number;
     closedJobs: number;
+    locationArray: string[];
   };
 }
 
